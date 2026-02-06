@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login } from '../controllers/authController';
+import { register, login, verify, logout } from '../controllers/authController';
 import { registerSchema, loginSchema, validate } from '../middleware/validation';
 
 const router = express.Router();
@@ -9,5 +9,11 @@ router.post('/register', validate(registerSchema), register);
 
 // POST /api/auth/login
 router.post('/login', validate(loginSchema), login);
+
+// GET /api/auth/verify
+router.get('/verify', verify);
+
+// POST /api/auth/logout
+router.post('/logout', logout);
 
 export default router;
