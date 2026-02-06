@@ -8,8 +8,14 @@ export const createSessionConfig = () => {
     throw new Error('MONGODB_URI is not defined in environment variables');
   }
 
+  const sessionSecret = process.env.SESSION_SECRET;
+  
+  if (!sessionSecret) {
+    throw new Error('SESSION_SECRET is not defined in environment variables');
+  }
+
   return session({
-    secret: process.env.SESSION_SECRET || '',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
