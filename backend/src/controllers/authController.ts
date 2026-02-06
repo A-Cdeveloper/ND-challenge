@@ -89,16 +89,9 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
 export const verify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const userId = req.session.userId;
+    // User is already authenticated and attached to req by requireAuth middleware
+    const user = req.user;
 
-    if (!userId) {
-      return next({
-        message: 'Not authenticated',
-        statusCode: 401,
-      });
-    }
-
-    const user = await User.findById(userId);
     if (!user) {
       return next({
         message: 'User not found',
@@ -108,7 +101,7 @@ export const verify = async (req: Request, res: Response, next: NextFunction): P
 
     res.status(200).json({
       user: {
-        id: user._id,
+        id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
