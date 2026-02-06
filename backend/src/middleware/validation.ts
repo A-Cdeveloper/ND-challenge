@@ -7,11 +7,12 @@ export const registerSchema = z.object({
   email: z.string().trim().email('Please provide a valid email address'),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(
-      /^(?=.*[a-zA-Z])(?=.*[0-9])/,
-      'Password must contain at least one letter and one number'
-    ),
+    .min(6, 'Password must be at least 6 characters long'),
+});
+
+export const loginSchema = z.object({
+  email: z.string().trim().email('Please provide a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
 });
 
 export const validate = (schema: z.ZodSchema) => {
