@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import connectDB from './config/database';
 import authRoutes from './routes/auth';
 import cors from 'cors';
@@ -16,6 +17,9 @@ dotenv.config({ path: envFile });
 const app = express();
 const PORT = Number(process.env.PORT) || 8000;
 
+// Security headers with Helmet
+// Helmet helps secure Express apps by setting various HTTP headers
+app.use(helmet());
 
 // CORS configuration
 app.use(cors({
