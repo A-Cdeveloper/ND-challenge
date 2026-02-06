@@ -13,6 +13,11 @@ Web application for user registration and authentication.
 *   Mongoose (^9.1.6)
 *   Zod (^4.3.6) - validation
 *   bcrypt (^6.0.0) - password hashing
+*   express-session (^1.19.0) - session management
+*   connect-mongo (^6.0.0) - MongoDB session store
+*   express-rate-limit (^8.2.1) - rate limiting
+*   helmet (^8.1.0) - security headers
+*   cors (^2.8.6) - CORS configuration
 
 ### Frontend
 
@@ -54,6 +59,8 @@ Set up environment variables:
 
 *   Copy `.env.development` and `.env.production` files
 *   Update `MONGODB_URI` with your MongoDB connection string
+*   Add `SESSION_SECRET` with a strong, random string
+*   Add `FRONTEND_URL` (e.g., `http://localhost:5173` for development)
 
 Start MongoDB (if running locally)
 
@@ -82,7 +89,9 @@ The backend server will run on `http://localhost:8000`
 
 *   First name and last name are required
 *   Email must be valid format
-*   Password must be at least 8 characters with at least one letter and one number
+*   Password must be at least 6 characters long
+
+**Rate Limiting:** 5 requests per 15 minutes per IP
 
 **Success Response (201):**
 
@@ -109,6 +118,131 @@ The backend server will run on `http://localhost:8000`
     }
   ]
 }
+```
+
+### Login
+
+**Endpoint:** `POST /api/auth/login`
+
+**Request Body:**
+
+```
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Success Response (200):**
+
+```
+{
+  "message": "Login successful",
+  "user": {
+    "id": "...",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+**Rate Limiting:** 5 requests per 15 minutes per IP
+
+### Verify Session
+
+**Endpoint:** `GET /api/auth/verify`
+
+**Authentication:** Required (uses `requireAuth` middleware)
+
+**Success Response (200):**
+
+```
+{
+  "user": {
+    "id": "...",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+**Error Response (401):**
+
+```
+{
+  "errors": [
+    {
+      "field": null,
+      "message": "Not authenticated"
+    }
+  ]
+}
+```
+
+### Logout
+
+**Endpoint:** `POST /api/auth/logout`
+
+**Success Response (200):**
+
+```
+{
+  "message": "Logout successful"
+}
+```
+
+## Security Features
+
+*   **Helmet** - Sets various HTTP security headers
+*   **Rate Limiting** - Prevents brute force attacks (5 requests/15min for auth routes)
+*   **Password Hashing** - Uses bcrypt with salt rounds
+*   **Session Management** - Secure httpOnly cookies with MongoDB storage
+*   **CORS** - Configured for frontend origin
+*   **Input Validation** - Zod schema validation for all inputs
+*   **Authentication Middleware** - `requireAuth` middleware for protected routes
+
+## Error Handling
+
+All errors follow a standardized format:
+
+```
+{
+  "errors": [
+    {
+      "field": "email",
+      "message": "Error message here"
+    }
+  ]
+}
+```
+
+For validation errors, `field` contains the field name. For general errors, `field` is `null`.
+
+## Authentication Middleware
+
+The application includes a reusable `requireAuth` middleware for protecting routes:
+
+```typescript
+import { requireAuth } from '../middleware/auth';
+
+// Apply to any route that requires authentication
+router.get('/protected-route', requireAuth, controllerFunction);
+```
+
+The middleware:
+* Verifies user session exists
+* Loads user from database
+* Attaches user to `req.user` for use in controllers
+* Returns 401 if not authenticated
+
+**Example usage in controller:**
+```typescript
+export const protectedController = (req: Request, res: Response) => {
+  // req.user is available and typed
+  const user = req.user; // { id, firstName, lastName, email }
+};
 ```
 
 ## Development
