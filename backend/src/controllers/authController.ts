@@ -1,16 +1,19 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import { hashPassword, comparePassword } from '../utils/password';
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ error: 'User with this email already exists' });
-      return;
+      return next({
+        message: 'User with this email already exists',
+        statusCode: 400,
+        field: 'email',
+      });
     }
 
     // Hash password
@@ -39,27 +42,32 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(401).json({ error: 'User with this email does not exist' });
-      return;
+      return next({
+        message: 'User with this email does not exist',
+        statusCode: 401,
+        field: 'email',
+      });
     }
 
     // Compare password
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ error: 'Wrong password for this email' });
-      return;
+      return next({
+        message: 'Wrong password for this email',
+        statusCode: 401,
+        field: 'password',
+      });
     }
 
     // Create session
@@ -75,24 +83,27 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const verify = async (req: Request, res: Response): Promise<void> => {
+export const verify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.session.userId;
 
     if (!userId) {
-      res.status(401).json({ error: 'Not authenticated' });
-      return;
+      return next({
+        message: 'Not authenticated',
+        statusCode: 401,
+      });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      res.status(401).json({ error: 'User not found' });
-      return;
+      return next({
+        message: 'User not found',
+        statusCode: 401,
+      });
     }
 
     res.status(200).json({
@@ -104,25 +115,24 @@ export const verify = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Verify error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-export const logout = async (req: Request, res: Response): Promise<void> => {
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        console.error('Logout error:', err);
-        res.status(500).json({ error: 'Failed to destroy session' });
-        return;
+        return next({
+          message: 'Failed to destroy session',
+          statusCode: 500,
+        });
       }
 
       res.clearCookie('connect.sid');
       res.status(200).json({ message: 'Logout successful' });
     });
   } catch (error) {
-    console.error('Logout error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };

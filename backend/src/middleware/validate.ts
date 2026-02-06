@@ -7,16 +7,13 @@ export const validate = (schema: ZodSchema) => {
       schema.parse(req.body);
       next();
     } catch (error) {
+      // Always pass ZodError to error handler middleware
+      // Zod.parse() always throws ZodError, so this should always be true
       if (error instanceof z.ZodError) {
-        res.status(400).json({
-          errors: error.issues.map((err) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        });
-        return;
+        return next(error);
       }
-      res.status(400).json({ error: 'Validation failed' });
+      // Fallback: if somehow it's not a ZodError, pass it as-is
+      next(error);
     }
   };
 };

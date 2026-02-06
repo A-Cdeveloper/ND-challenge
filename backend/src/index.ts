@@ -4,6 +4,7 @@ import connectDB from './config/database';
 import authRoutes from './routes/auth';
 import cors from 'cors';
 import { createSessionConfig } from './config/session';
+import { errorHandler } from './middleware/errorHandler';
 
 // Load environment variables based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' 
@@ -47,8 +48,11 @@ const startServer = async () => {
   }
 };
 
-//Auth routes
+// Auth routes
 app.use('/api/auth', authRoutes);
+
+// Error handler middleware (must be last)
+app.use(errorHandler);
 
 startServer();
 
