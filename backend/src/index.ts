@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/database';
+import authRoutes from './routes/auth';
 
 // Load environment variables based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' 
@@ -33,6 +34,9 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+//Auth routes
+app.use('/api/auth', authRoutes);
 
 startServer();
 
