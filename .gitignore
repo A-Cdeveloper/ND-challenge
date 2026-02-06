@@ -63,6 +63,3 @@ coverage/
 # MongoDB (if using local)
 data/
 *.db
-
-# README (temporary - will be added later)
-README.md
