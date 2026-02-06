@@ -29,14 +29,11 @@ app.use(cors({
 
 app.use(createSessionConfig());
 
-
 app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({ message: 'ND Challenge API is running' });
 });
-
-
 
 // Connect to MongoDB and start server
 const startServer = async () => {
@@ -59,5 +56,3 @@ app.use('/api/auth', authRoutes);
 app.use(errorHandler);
 
 startServer();
-
-
