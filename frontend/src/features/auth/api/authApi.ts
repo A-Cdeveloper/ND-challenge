@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import type { LoginRequest, RegisterRequest, AuthResponse } from '../types';
+import type { User } from '@/types/user';
 
 /**
  * Registers a new user account.
@@ -26,6 +27,18 @@ export async function login(credentials: LoginRequest) {
   return api<AuthResponse>('/api/auth/login', {
     method: 'POST',
     body: credentials,
+  });
+}
+
+/**
+ * Verifies current user session.
+ * Returns user data if session is valid.
+ * 
+ * @returns Response with user data or error
+ */
+export async function verify() {
+  return api<{ user: User }>('/api/auth/verify', {
+    method: 'GET',
   });
 }
 
