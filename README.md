@@ -1,6 +1,30 @@
 # ND Challenge
 
-Web application for user registration and authentication.
+Web application for user registration and authentication with session-based authentication.
+
+## Features
+
+### Registration Page
+
+*   User registration with first name, last name, email, and password
+*   Client-side and server-side validation
+*   Automatic login after successful registration
+*   Redirect to home page upon successful registration
+
+### Login Page
+
+*   User authentication with email and password
+*   Client-side and server-side validation
+*   Session creation upon successful login
+*   Redirect to home page upon successful login
+*   Link to registration page for new users
+
+### Home Page
+
+*   Displays personalized welcome message with user's first and last name
+*   Session persistence across browser refreshes
+*   Logout functionality that destroys session and redirects to login page
+*   Protected route that requires authentication
 
 ## Tech Stack
 
@@ -34,26 +58,35 @@ Web application for user registration and authentication.
 WEBAPP/
 ├── backend/
 │   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   └── routes/
+│   │   ├── config/           # Configuration files (database, session)
+│   │   ├── controllers/      # Route controllers
+│   │   ├── middleware/       # Express middleware (auth, error handling, validation, rate limiting)
+│   │   ├── models/           # Mongoose models
+│   │   ├── routes/           # Express routes
+│   │   ├── schemas/          # Zod validation schemas
+│   │   ├── types/            # TypeScript type definitions
+│   │   ├── utils/            # Utility functions (password hashing)
+│   │   └── index.ts          # Application entry point
 │   ├── .env.development
 │   └── .env.production
 └── frontend/
     ├── src/
-    │   ├── components/       # Reusable components
-    │   ├── context/          # Global context
+    │   ├── components/       # Reusable components (ProtectedRoute, PublicRoute, UI components)
+    │   ├── context/         # Global context (AuthContext)
     │   ├── features/         # Feature-based modules
     │   │   └── auth/         # Authentication feature
     │   │       ├── api/      # API functions
-    │   │       ├── hooks/    # React Query hooks
-    │   │       └── context/  # Auth context
-    │   ├── lib/              # Utilities (API wrapper, env)
-    │   ├── pages/            # Page components
-    │   └── providers/        # App providers (Router, React Query)
-    └── .env                  # Environment variables
+    │   │       ├── components/ # Auth components (LoginForm, RegisterForm, ErrorBox)
+    │   │       ├── hooks/     # React Query hooks
+    │   │       └── types/    # Auth type definitions
+    │   ├── hooks/            # Custom hooks (useLocalStorage)
+    │   ├── lib/              # Utilities (API wrapper, env, utils)
+    │   ├── pages/            # Page components (HomePage, LoginPage, RegisterPage)
+    │   ├── providers/        # App providers (Router, React Query)
+    │   ├── types/            # Global type definitions
+    │   └── main.tsx          # Application entry point
+    ├── .env.development
+    └── .env.production
 ```
 
 ## Getting Started
@@ -68,18 +101,32 @@ WEBAPP/
 
 Navigate to backend directory:
 
+```
+cd backend
+```
+
 Install dependencies:
+
+```
+npm install
+```
 
 Set up environment variables:
 
-*   Copy `.env.development` and `.env.production` files
-*   Update `MONGODB_URI` with your MongoDB connection string
-*   Add `SESSION_SECRET` with a strong, random string
-*   Add `FRONTEND_URL` (e.g., `http://localhost:5173` for development)
+*   Create `.env.development` file for development (or `.env.production` for production)
+*   Add the following variables:
+    *   `MONGODB_URI` - Your MongoDB connection string (e.g., `mongodb://localhost:27017/nd-challenge`)
+    *   `SESSION_SECRET` - A strong, random string for session encryption
+    *   `FRONTEND_URL` - Frontend URL (e.g., `http://localhost:5173` for development)
+    *   `PORT` - Backend server port (optional, defaults to 8000)
 
 Start MongoDB (if running locally)
 
 Run development server:
+
+```
+npm run dev
+```
 
 The backend server will run on `http://localhost:8000`
 
@@ -99,8 +146,9 @@ npm install
 
 Set up environment variables:
 
-*   Create `.env` file in frontend directory
-*   Add `VITE_API_URL=http://localhost:8000` (or your backend URL)
+*   Create `.env.development` file for development (or `.env.production` for production)
+*   Add the following variable:
+    *   `VITE_API_URL` - Backend API URL (e.g., `http://localhost:8000`)
 
 Run development server:
 
@@ -129,9 +177,9 @@ The frontend will run on `http://localhost:5173` (or next available port)
 
 **Validation Rules:**
 
-*   First name and last name are required
-*   Email must be valid format
-*   Password must be at least 6 characters long
+*   First name and last name are required (client-side and server-side)
+*   Email must be valid format (validated on frontend with HTML5 and on backend with Zod regex)
+*   Password must be at least 6 characters long (validated on frontend and backend)
 
 **Rate Limiting:** 5 requests per 15 minutes per IP
 
@@ -174,6 +222,11 @@ The frontend will run on `http://localhost:5173` (or next available port)
   "password": "password123"
 }
 ```
+
+**Validation Rules:**
+
+*   Email must be valid format (validated on frontend with HTML5 and on backend with Zod regex)
+*   Password must be at least 6 characters long (validated on frontend and backend)
 
 **Success Response (200):**
 
@@ -293,10 +346,29 @@ export const protectedController = (req: Request, res: Response) => {
 
 ### Authentication Flow
 
-*   **AuthContext** - Manages global user state
+*   **AuthContext** - Manages global user state with localStorage persistence
 *   **ProtectedRoute** - Component that verifies authentication before rendering
+*   **PublicRoute** - Component that redirects authenticated users away from public pages
 *   **React Query Hooks** - `useLogin`, `useRegister`, `useLogout`, `useVerify` for API calls
 *   **Session-based Auth** - Uses httpOnly cookies for secure session management
+
+### Frontend Validation
+
+The application implements client-side validation for better user experience:
+
+**Registration Form:**
+
+*   All fields are required (HTML5 validation + custom validation)
+*   Email format validation (HTML5 `type="email"`)
+*   Password minimum length validation (6 characters)
+*   Real-time error display with user-friendly messages
+
+**Login Form:**
+
+*   Email and password are required
+*   Email format validation (HTML5 `type="email"`)
+*   Password minimum length validation (6 characters)
+*   Error handling for invalid credentials
 
 ### Protected Routes
 
@@ -307,7 +379,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 // In router configuration
 {
-  path: "/home",
+  path: "/",
   element: (
     <ProtectedRoute>
       <HomePage />
@@ -315,6 +387,33 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
   ),
 }
 ```
+
+The `ProtectedRoute` component:
+
+*   Calls `useVerify()` to check session validity
+*   Updates `AuthContext` with user data
+*   Shows loading state while verifying
+*   Redirects to `/login` if not authenticated
+
+### Public Routes
+
+Public routes (like login and register) can be protected using the `PublicRoute` component:
+
+```typescript
+import { PublicRoute } from '@/components/PublicRoute';
+
+// In router configuration
+{
+  path: "/login",
+  element: (
+    <PublicRoute>
+      <LoginPage />
+    </PublicRoute>
+  ),
+}
+```
+
+The `PublicRoute` component redirects authenticated users to the home page to prevent access to login/register pages when already logged in.
 
 ## Development
 
@@ -325,18 +424,28 @@ Backend and frontend run on separate ports during development:
 
 Make sure both servers are running for full functionality.
 
+## Application Flow
+
+**Registration:**
+
+*   User fills out registration form (firstName, lastName, email, password)
+*   Client-side validation checks all fields and password length
+*   On submit, backend validates with Zod schema and Mongoose model
+*   User is created in MongoDB, session is created, and user is redirected to home page
+
+**Home Page:**
+
+*   `ProtectedRoute` verifies session by calling `/api/auth/verify`
+*   User data is displayed: "Welcome {firstName} {lastName}"
+*   User state is persisted in localStorage for browser refresh persistence
+*   Logout button destroys session and redirects to login page
+
+**Session Persistence:**
+
+*   User state is stored in localStorage via `useLocalStorage` hook
+*   On page refresh, `ProtectedRoute` calls `useVerify()` to validate session
+*   If session is valid, user remains logged in
+
 ## License
 
 This project is created for assessment purposes.
-
-```
-npm run dev
-```
-
-```
-npm install
-```
-
-```
-cd backend
-```
