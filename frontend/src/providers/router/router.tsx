@@ -5,8 +5,7 @@ import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import HomePage from "@/pages/HomePage";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-
-
+import { PublicRoute } from "@/components/PublicRoute";
 
 export const router = createBrowserRouter([
   {
@@ -23,11 +22,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "/register",
-        element: <RegisterPage />,
+        element: (
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        ),
       },
       {
         path: "/login",
-        element: <LoginPage />,
+        element: (
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        ),
       },
       {
         path: "*",
