@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
-import { useAuth } from '@/features/auth/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 type PublicRouteProps = {
     children: ReactNode;

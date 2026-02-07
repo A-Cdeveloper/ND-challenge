@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import { useVerify } from '@/features/auth/hooks/useVerify';
-import { useAuth } from '@/features/auth/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import Loading from './Loading';
 
 type ProtectedRouteProps = {

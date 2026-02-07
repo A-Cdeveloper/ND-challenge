@@ -1,6 +1,6 @@
 import AppRouterProvider from "./router/AppRouterProvider";
 import TanstackProvider from "./tanstackquery/TanstackProvider";
-import { AuthProvider } from "@/features/auth/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const AppProviders = () => {
   return (

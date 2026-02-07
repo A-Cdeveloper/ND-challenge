@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/features/auth/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useLogout } from '@/features/auth/hooks/useLogout';
 
 const HomePage = () => {
