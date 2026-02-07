@@ -1,11 +1,7 @@
-
+import { RegisterForm } from '@/features/auth/components/RegisterForm';
 
 const RegisterPage = () => {
-  return (
-    <div className="bg-card text-card-foreground rounded-lg border border-border shadow-lg p-6 w-full max-w-md">
-        <h1 className="text-2xl font-bold">Register</h1>
-    </div>
-  )
-}
+  return <RegisterForm />;
+};
 
-export default RegisterPage
+export default RegisterPage;
