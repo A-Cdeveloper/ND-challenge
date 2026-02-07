@@ -1,5 +1,19 @@
 import { api } from '@/lib/api';
-import type { LoginRequest, AuthResponse } from '../types';
+import type { LoginRequest, RegisterRequest, AuthResponse } from '../types';
+
+/**
+ * Registers a new user account.
+ * Creates user and session cookie on successful registration.
+ * 
+ * @param data - User registration data
+ * @returns Response with user data or error
+ */
+export async function register(data: RegisterRequest) {
+  return api<AuthResponse>('/api/auth/register', {
+    method: 'POST',
+    body: data,
+  });
+}
 
 /**
  * Authenticates user with email and password.
