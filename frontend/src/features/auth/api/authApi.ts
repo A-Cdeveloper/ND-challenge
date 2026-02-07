@@ -28,3 +28,15 @@ export async function login(credentials: LoginRequest) {
     body: credentials,
   });
 }
+
+/**
+ * Logs out the current user.
+ * Destroys session and clears session cookie.
+ * 
+ * @returns Response with success message or error
+ */
+export async function logout() {
+  return api<{ message: string }>('/api/auth/logout', {
+    method: 'POST',
+  });
+}
