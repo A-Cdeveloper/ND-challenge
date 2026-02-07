@@ -1,6 +1,7 @@
-import { createContext, use, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from '@/types/user';
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 type AuthContextType = {
     user: User | null;
@@ -21,13 +22,16 @@ type AuthProviderProps = {
  * @param children - Child components that will have access to auth context
  */
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useLocalStorage<User | null>('auth_user', null);
 
-    const value: AuthContextType = {
-        user,
-        setUser,
-        isAuthenticated: !!user,
-    };
+    const value: AuthContextType = useMemo(
+        () => ({
+            user,
+            setUser,
+            isAuthenticated: !!user,
+        }),
+        [user, setUser]
+    );
 
     return <AuthContext value={value}>{children}</AuthContext>;
 }
@@ -40,7 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
-    const context = use(AuthContext);
+    const context = useContext(AuthContext);
     if (context === undefined) {
         throw new Error('useAuth must be used within AuthProvider');
     }
