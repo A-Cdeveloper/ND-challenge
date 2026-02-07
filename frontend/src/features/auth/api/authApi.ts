@@ -34,12 +34,13 @@ export async function login(credentials: LoginRequest) {
  * Verifies current user session.
  * Returns user data if session is valid.
  * 
- * @returns Response with user data or error
+ * @returns User data or throws error
  */
 export async function verify() {
-  return api<{ user: User }>('/api/auth/verify', {
+  const result = await api<{ user: User }>('/api/auth/verify', {
     method: 'GET',
   });
+  return result.user;
 }
 
 /**

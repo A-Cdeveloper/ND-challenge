@@ -15,18 +15,18 @@ type ProtectedRouteProps = {
  * @param children - Child components to render if authenticated
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-    const { data: verifyData } = useVerify();
+    const { data: user } = useVerify();
     const { setUser } = useAuth();
 
     useEffect(() => {
-        if (verifyData?.data?.user) {
-            setUser(verifyData.data.user);
+        if (user) {
+            setUser(user);
         } else {
             setUser(null);
         }
-    }, [verifyData, setUser]);
+    }, [user, setUser]);
 
-    if (!verifyData?.data?.user) {
+    if (!user) {
         return <Navigate to="/login" replace />;
     }
 

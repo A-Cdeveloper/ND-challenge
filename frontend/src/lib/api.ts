@@ -1,19 +1,10 @@
 import { env } from './env';
-import type { ApiError } from '@/features/auth/types';
 
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   body?: unknown;
   credentials?: 'omit' | 'same-origin' | 'include';
-};
-
-type ApiResponse<T> = {
-  data: T;
-  error: null;
-} | {
-  data: null;
-  error: ApiError;
 };
 
 /**
@@ -23,12 +14,12 @@ type ApiResponse<T> = {
  * @template T - Response data type
  * @param {string} endpoint - API endpoint path
  * @param {RequestOptions} [options] - Request options
- * @returns {Promise<ApiResponse<T>>} Response with data or error
+ * @returns {Promise<T>} Response data or throws error
  */
 export async function api<T>(
   endpoint: string,
   options: RequestOptions = {}
-): Promise<ApiResponse<T>> {
+): Promise<T> {
   const {
     method = 'GET',
     headers = {},
@@ -53,32 +44,18 @@ export async function api<T>(
 
     if (!response.ok) {
       // Backend always returns errors in format: { errors: [{ field, message }] }
-      return {
-        data: null,
-        error: data as ApiError,
-      };
+      const errorMessage = data.errors?.[0]?.message || 'Request failed';
+      throw new Error(errorMessage);
     }
 
-    // Success response - format varies by endpoint
-    return {
-      data: data as T,
-      error: null,
-    };
+    // Success response - return data directly
+    return data as T;
   } catch (error) {
+    // Re-throw if already an Error
+    if (error instanceof Error) {
+      throw error;
+    }
     // Network errors, JSON parse errors, etc.
-    return {
-      data: null,
-      error: {
-        errors: [
-          {
-            field: null,
-            message:
-              error instanceof Error
-                ? error.message
-                : 'Network error. Please check your connection.',
-          },
-        ],
-      },
-    };
+    throw new Error('Network error. Please check your connection.');
   }
 }
